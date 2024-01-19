@@ -1,0 +1,65 @@
+#root {
+  margin: 0;
+}
+
+.app {
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: 2fr 2fr;
+  grid-template-rows: 1fr;
+  grid-template-areas: "logo registro-asistencias";
+}
+
+img {
+  width: 80%;
+  height: 60%;
+  border-radius:10px;
+}
+
+
+.registro-asistencias {
+  width: 80%;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  grid-area: "registro-asistencias";
+  justify-content: center;
+}
+
+/* .lista-trabajando {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  grid-area: "lista-trabajando";
+} */
+
+.logo {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  grid-area: "logo";
+}
+
+
+select {
+  width: 100%;
+  height: 100%;
+  padding: 0.5em;
+  border: 1px solid #ffff;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color : #ffff;
+  font-size: 20px;
+}
