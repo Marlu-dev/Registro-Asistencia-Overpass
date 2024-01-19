@@ -56,7 +56,7 @@ const Select = ({
   }, [coleccion, nombreCarreraSeleccionada, nombreCicloSeleccionado]);
 
   return (
-    <div>
+    <div style={{ width: "100%" }}>
       <select name={nombre} id="opcion" onChange={onSelectChange}>
         <option value="">{opcionDefault || "Selecciona una opción"}</option>
         {nombre === "grupo"

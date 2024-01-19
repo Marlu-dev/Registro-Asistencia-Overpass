@@ -1,10 +1,18 @@
 import './App.css'
 import Select from './components/Select'
 import { useEffect, useState } from 'react'
-import { doc, getDoc, updateDoc, query, collection, onSnapshot, where } from 'firebase/firestore'
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  query,
+  collection,
+  onSnapshot,
+  where
+} from 'firebase/firestore'
 import { db } from '../public/firebase'
 // import RegistroTrabajando from './components/RegistroTrabajando'
-import img from './assets/img.jpg'
+import img from './assets/img-removebg-preview.png'
 
 function App () {
   const [miembroSeleccionado, setMiembroSeleccionado] = useState('')
@@ -24,14 +32,20 @@ function App () {
 
       const nuevoArrayRegistro = [...registrosActuales, datos]
 
-      await updateDoc(coleccionRef, { registro: nuevoArrayRegistro, trabajando: !estado })
+      await updateDoc(coleccionRef, {
+        registro: nuevoArrayRegistro,
+        trabajando: !estado
+      })
     } else {
       console.error('El documento no existe')
     }
   }
 
   useEffect(() => {
-    const q = query(collection(db, 'miembros'), where('nombre', '==', miembroSeleccionado))
+    const q = query(
+      collection(db, 'miembros'),
+      where('nombre', '==', miembroSeleccionado)
+    )
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const coincidencia = querySnapshot.docs.map((doc) => {
         return {
@@ -65,10 +79,51 @@ function App () {
         <img src={img} alt='trabajando' />
       </div>
       <div className='registro-asistencias'>
-        <h1>Registro de Asistencia</h1>
+        <div style={{ width: '100%' }}>
+          <h1>Control de Asistencia</h1>
+        </div>
 
-        <Select coleccion='miembros' onSelectChange={onSelectChange} />
-        <button onClick={registrar}>{estado ? 'Registrar Salida' : 'Registrar Entrada'}</button>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: 'auto',
+            paddingLeft: '1.2em',
+            marginTop: '1em'
+          }}
+        >
+          <label>Usuario: </label>
+          <Select coleccion='miembros' onSelectChange={onSelectChange} />
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            width: 'auto',
+            paddingLeft: '1.2em',
+            marginTop: '1em'
+          }}
+        >
+          <label>Fecha: </label>
+          <label style={{ display: 'flex', marginLeft: '10%' }}>{new Date().toLocaleDateString()}</label>
+
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {/* <button onClick={registrar}>
+            {estado ? 'Registrar Salida' : 'Registrar Entrada'}
+          </button> */}
+          {
+            estado
+              ? <button style={{ backgroundColor: 'red', color: 'white' }} onClick={registrar}>Registrar Salida</button>
+              : <button style={{ backgroundColor: 'blue', color: 'white' }} onClick={registrar}>Registrar Entrada</button>
+          }
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+          <a href=''>Generar Reporte</a>
+        </div>
       </div>
       {/* <div className='lista-trabajando'>
         <RegistroTrabajando />
