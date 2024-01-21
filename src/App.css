@@ -2,11 +2,34 @@
   margin: 0;
 }
 
-.app {
+.contenedor-principal {
   height: 100vh;
   width: 100vw;
   display: grid;
   align-items: center;
+  justify-content: center;
+  grid-template-columns: 1fr;
+  grid-template-rows: 30px 1fr;
+  grid-template-areas: "barra-de-titulo"
+  "app"
+}
+
+.barra-de-titulo {
+  height: 30px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #000;
+  grid-area: "barra-de-titulo";
+}
+
+.app {
+  height: 100%;
+  width: 100%;
+  display: grid;
+  align-items: center;
+  grid-area: "app";
   justify-content: center;
   grid-template-columns: 2fr 2fr;
   grid-template-rows: 1fr;

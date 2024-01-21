@@ -11,17 +11,36 @@ import {
   where
 } from 'firebase/firestore'
 import { db } from '../public/firebase'
-// import RegistroTrabajando from './components/RegistroTrabajando'
-import img from './assets/img-removebg-preview.png'
+import logo from './assets/img-removebg-preview.png'
+import BarraTitulo from './components/BarraTitulo'
+import PDF from './components/PDF'
+import { PDFDownloadLink } from '@react-pdf/renderer'
 
 function App () {
   const [miembroSeleccionado, setMiembroSeleccionado] = useState('')
   const [listaDeOpciones, setListaOpciones] = useState([])
   const [estado, setEstado] = useState(false)
+  const [datos, setDatos] = useState([])
 
   const onSelectChange = (e) => {
     setMiembroSeleccionado(e.target.value)
   }
+
+  useEffect(() => {
+    const q = query(collection(db, 'miembros'))
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const coincidencia = querySnapshot.docs.map((doc) => {
+        return {
+          id: doc.id,
+          nombre: doc.data().nombre,
+          fecha: doc.data().registro.length ? doc.data().registro : 'No hay registros'
+        }
+      })
+      setDatos(coincidencia)
+    })
+
+    return () => unsubscribe()
+  }, [])
 
   async function agregarRegistro (datos, codigo, estado) {
     const coleccionRef = doc(db, 'miembros', codigo)
@@ -74,61 +93,81 @@ function App () {
   }
 
   return (
-    <div className='app'>
-      <div className='logo'>
-        <img src={img} alt='trabajando' />
+    <div className='contenedor-principal'>
+      <div className='barra-de-titutlo'>
+        <BarraTitulo />
       </div>
-      <div className='registro-asistencias'>
-        <div style={{ width: '100%' }}>
-          <h1>Control de Asistencia</h1>
+
+      <div className='app'>
+        <div className='logo'>
+          <img src={logo} alt='trabajando' />
         </div>
+        <div className='registro-asistencias'>
+          <div style={{ width: '100%' }}>
+            <h1>Control de Asistencia</h1>
+          </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            width: 'auto',
-            paddingLeft: '1.2em',
-            marginTop: '1em'
-          }}
-        >
-          <label>Usuario: </label>
-          <Select coleccion='miembros' onSelectChange={onSelectChange} />
-        </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: 'auto',
+              paddingLeft: '1.2em',
+              marginTop: '1em'
+            }}
+          >
+            <label>Usuario: </label>
+            <Select coleccion='miembros' onSelectChange={onSelectChange} />
+          </div>
 
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            width: 'auto',
-            paddingLeft: '1.2em',
-            marginTop: '1em'
-          }}
-        >
-          <label>Fecha: </label>
-          <label style={{ display: 'flex', marginLeft: '10%' }}>{new Date().toLocaleDateString()}</label>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: 'auto',
+              paddingLeft: '1.2em',
+              marginTop: '1em'
+            }}
+          >
+            <label>Fecha: </label>
+            <label style={{ display: 'flex', marginLeft: '10%' }}>{new Date().toLocaleDateString()}</label>
 
-        </div>
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          {/* <button onClick={registrar}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            {/* <button onClick={registrar}>
             {estado ? 'Registrar Salida' : 'Registrar Entrada'}
           </button> */}
-          {
+            {
             estado
               ? <button style={{ backgroundColor: 'red', color: 'white' }} onClick={registrar}>Registrar Salida</button>
               : <button style={{ backgroundColor: 'blue', color: 'white' }} onClick={registrar}>Registrar Entrada</button>
           }
-        </div>
+          </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-          <a href=''>Generar Reporte</a>
+          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+            {
+              datos && datos.length > 0
+                ? (
+                  <PDFDownloadLink document={<PDF datos={datos} />} fileName='reporte.pdf'>
+                    {({ loading }) => (loading ? 'Cargando documento...' : 'Descargar PDF')}
+                  </PDFDownloadLink>
+                  )
+                : (
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15.6%', marginLeft: '5%' }}>
+                    <h3>No hay datos para exportar</h3>
+                  </div>
+                  )
+            }
+
+          </div>
         </div>
-      </div>
-      {/* <div className='lista-trabajando'>
+        {/* <div className='lista-trabajando'>
         <RegistroTrabajando />
       </div> */}
+      </div>
     </div>
+
   )
 }
 
