@@ -1,6 +1,7 @@
+import React, { useEffect, useState } from 'react'
 import './App.css'
 import Select from './components/Select'
-import { useEffect, useState } from 'react'
+
 import {
   doc,
   getDoc,
@@ -21,7 +22,10 @@ function App () {
   const [listaDeOpciones, setListaOpciones] = useState([])
   const [estado, setEstado] = useState(false)
   const [datos, setDatos] = useState([])
-
+  const [entrada, setEntrada] = useState()
+  const [salida, setSalida] = useState()
+  const [cantidadDeHoras, setCantidadDeHoras] = useState(0)
+  const [totalDeHoras, setTotalDeHoras] = useState()
   const onSelectChange = (e) => {
     setMiembroSeleccionado(e.target.value)
   }
@@ -33,7 +37,9 @@ function App () {
         return {
           id: doc.id,
           nombre: doc.data().nombre,
-          fecha: doc.data().registro.length ? doc.data().registro : 'No hay registros'
+          fecha: doc.data().registro.length
+            ? doc.data().registro
+            : 'No hay registros'
         }
       })
       setDatos(coincidencia)
@@ -41,6 +47,38 @@ function App () {
 
     return () => unsubscribe()
   }, [])
+
+  useEffect(() => {
+    console.log(datos)
+
+    for (let i = 0; i < datos.length; i++) {
+      // quiero restar impares con pares
+      let cantidadDeHoras = 0
+      let cantidadDeHorasAcumuladas = 0
+      for (let j = 0; j < datos[i].fecha.length; j++) {
+        if (datos[i].fecha[j].tipo === 'Entrada') {
+          setEntrada(datos[i].fecha[j].fecha)
+        } else if (datos[i].fecha[j].tipo === 'Salida') {
+          setSalida(datos[i].fecha[j].fecha)
+          cantidadDeHoras = datos[i].fecha[j].fecha - datos[i].fecha[j - 1].fecha
+          cantidadDeHorasAcumuladas += cantidadDeHoras
+          console.log(cantidadDeHorasAcumuladas / 60 / 60)
+          console.log(cantidadDeHoras / 60 / 60)
+          datos[i].cantidadDeHorasAcumuladas = cantidadDeHorasAcumuladas
+          console.log(datos[i].cantidadDeHorasAcumuladas)
+        }
+      }
+    }
+  }, [datos])
+
+  useEffect(() => {
+    console.log(entrada)
+    console.log(salida)
+  }, [entrada, salida])
+
+  useEffect(() => {
+    console.log(Math.round(cantidadDeHoras / 60 / 60))
+  }, [cantidadDeHoras])
 
   async function agregarRegistro (datos, codigo, estado) {
     const coleccionRef = doc(db, 'miembros', codigo)
@@ -130,36 +168,57 @@ function App () {
             }}
           >
             <label>Fecha: </label>
-            <label style={{ display: 'flex', marginLeft: '10%' }}>{new Date().toLocaleDateString()}</label>
-
+            <label style={{ display: 'flex', marginLeft: '10%' }}>
+              {new Date().toLocaleDateString()}
+            </label>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             {/* <button onClick={registrar}>
             {estado ? 'Registrar Salida' : 'Registrar Entrada'}
           </button> */}
-            {
-            estado
-              ? <button style={{ backgroundColor: 'red', color: 'white' }} onClick={registrar}>Registrar Salida</button>
-              : <button style={{ backgroundColor: 'blue', color: 'white' }} onClick={registrar}>Registrar Entrada</button>
-          }
+            {estado
+              ? (
+                <button
+                  style={{ backgroundColor: 'red', color: 'white' }}
+                  onClick={registrar}
+                >
+                  Registrar Salida
+                </button>
+                )
+              : (
+                <button
+                  style={{ backgroundColor: 'blue', color: 'white' }}
+                  onClick={registrar}
+                >
+                  Registrar Entrada
+                </button>
+                )}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            {
-              datos && datos.length > 0
-                ? (
-                  <PDFDownloadLink document={<PDF datos={datos} />} fileName='reporte.pdf'>
-                    {({ loading }) => (loading ? 'Cargando documento...' : 'Descargar PDF')}
-                  </PDFDownloadLink>
-                  )
-                : (
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15.6%', marginLeft: '5%' }}>
-                    <h3>No hay datos para exportar</h3>
-                  </div>
-                  )
-            }
-
+            {datos && datos.length > 0
+              ? (
+                <PDFDownloadLink
+                  document={<PDF datos={datos} />}
+                  fileName='reporte.pdf'
+                >
+                  {({ loading }) =>
+                    loading ? 'Cargando documento...' : 'Descargar PDF'}
+                </PDFDownloadLink>
+                )
+              : (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    marginTop: '15.6%',
+                    marginLeft: '5%'
+                  }}
+                >
+                  <h3>No hay datos para exportar</h3>
+                </div>
+                )}
           </div>
         </div>
         {/* <div className='lista-trabajando'>
@@ -167,7 +226,6 @@ function App () {
       </div> */}
       </div>
     </div>
-
   )
 }
 
